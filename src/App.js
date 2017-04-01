@@ -1,53 +1,8 @@
 import React from 'react';
-import createHistory from 'history/createBrowserHistory';
-
-const Match=({ pattern, component: Component }) => {
-  const pathname=location.pathname;
-  if (pathname.match(pattern)) {
-    return(
-      <Component />
-    );
-  } else {
-    return null;
-  }
-};
-Match.contextTypes={
-  location: React.PropTypes.object,
-};
-
-const Link=({ to, children }, { history }) => (
-  <a
-    onClick={(e) => {e.preventDefault();history.push(to);}} href={to}
-    > {children}
-  </a>
-);
-Link.contextTypes={
-  history: React.PropTypes.object,
-};
-
-class Router extends React.Component {
-
-  static childContextTypes = {
-    history: React.PropTypes.Object,
-    location: React.PropTypes.Object,
-  };
-
-  constructor(props) {
-    super(props);
-
-    this.history=createHistory();
-    this.history.listen(() => this.forceUpdate());
-  }
-  getChildContext() {
-    return {
-      history: this.history,
-      location: window.location,
-    };
-  }
-  render() {
-    return this.props.children;
-  }
-}
+import Router from 'react-router/BrowserRouter';
+import Match from 'react-router/Match';
+import Link from 'react-router/Link';
+import Redirect from 'react-router/Redirect';
 
 const App=() => (
   <Router>
@@ -69,17 +24,21 @@ const App=() => (
             <code>/pacific</code>
           </Link>
         </li>
+        <li>
+          <Link to='/black-sea'>
+            <code>/black-sea</code>
+          </Link>
+        </li>
       </ul>
 
       <hr />
       <Match pattern='/atlantic' component={Atlantic} />
       <Match pattern='/pacific' component={Pacific} />
+      <Match pattern='/black-sea' component={BlackSea} />
       {/* We'll insert the Match components here */}
     </div>
   </Router>
 );
-
-
 
 const Atlantic=() => (
   <div>
@@ -100,5 +59,33 @@ const Pacific=() => (
     </p>
   </div>
 );
+class BlackSea extends React.Component {
+  constructor(props) {
+    super(props);
 
+    this.state = {
+      counter: 3,
+    };
+  }
+
+  componentDidMount() {
+    setInterval(() => (
+      this.setState({ counter: this.state.counter - 1 })
+    ), 1000);
+  }
+  render() {
+    return (
+      <div>
+        <h3>Black Sea</h3>
+        <p>Nothing to sea [sic] here ...</p>
+        <p>Redirecting in {this.state.counter}...</p>
+        {
+          (this.state.counter < 1) ? (
+            <Redirect to='/' />
+          ) : null
+        }
+      </div>
+    );
+  }
+}
 export default App;
