@@ -3,6 +3,7 @@ import Router from 'react-router/BrowserRouter';
 import Match from 'react-router/Match';
 import Link from 'react-router/Link';
 import Redirect from 'react-router/Redirect';
+import Miss from 'react-router/Miss';
 
 const App=() => (
   <Router>
@@ -33,9 +34,26 @@ const App=() => (
 
       <hr />
       <Match pattern='/atlantic' component={Atlantic} />
+        <Match pattern='/atlantic/ocean' render={() =>(
+            <div>
+              <h3>Atlantic Ocean - Again!</h3>
+              <p>The Atlantic Ocean covers approximately 29% of the world's water surface area.</p>
+            </div>
+          )} />
       <Match pattern='/pacific' component={Pacific} />
       <Match pattern='/black-sea' component={BlackSea} />
-      {/* We'll insert the Match components here */}
+      <Match exactly pattern='/' render={() => (
+          <h3>Welcome! Select a body of saline water above.</h3>
+        )} />
+
+      <Miss render={({ location }) => (
+          <div className='ui inverted red segment'>
+            <h3>
+              Error! No matches for <code>{location.pathname}</code>
+            </h3>
+          </div>
+        )} />
+
     </div>
   </Router>
 );
