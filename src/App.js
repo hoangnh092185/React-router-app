@@ -1,10 +1,8 @@
 import React from 'react';
 import createHistory from 'history/createBrowserHistory';
 
-const history = createHistory();
-
-const Match= ({ pattern, component: Component }) => {
-  const pathname = window.location.pathname;
+const Match=({ pattern, component: Component }) => {
+  const pathname=location.pathname;
   if (pathname.match(pattern)) {
     return(
       <Component />
@@ -13,50 +11,77 @@ const Match= ({ pattern, component: Component }) => {
     return null;
   }
 };
+Match.contextTypes={
+  location: React.PropTypes.object,
+};
 
-const Link = ({ to, children }) => (
+const Link=({ to, children }, { history }) => (
   <a
-    onClick = {(e) => {e.preventDefault();history.push(to);}} href={to}
+    onClick={(e) => {e.preventDefault();history.push(to);}} href={to}
     > {children}
   </a>
 );
+Link.contextTypes={
+  history: React.PropTypes.object,
+};
 
-class App extends React.Component {
-  componentDidMount() {
-    history.listen(() => this.forceUpdate());
+class Router extends React.Component {
+
+  static childContextTypes = {
+    history: React.PropTypes.Object,
+    location: React.PropTypes.Object,
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.history=createHistory();
+    this.history.listen(() => this.forceUpdate());
+  }
+  getChildContext() {
+    return {
+      history: this.history,
+      location: window.location,
+    };
   }
   render() {
-    return (
-      <div
-        className='ui text container'
-      >
-        <h2 className='ui dividing header'>
-          Which body of water?
-        </h2>
-
-        <ul>
-          <li>
-            <Link to='/atlantic'>
-              <code>/atlantic</code>
-            </Link>
-          </li>
-          <li>
-            <Link to='/pacific'>
-              <code>/pacific</code>
-            </Link>
-          </li>
-        </ul>
-
-        <hr />
-        <Match pattern='/atlantic' component={Atlantic} />
-        <Match pattern='/pacific' component={Pacific} />
-        {/* We'll insert the Match components here */}
-      </div>
-    );
+    return this.props.children;
   }
 }
 
-const Atlantic = () => (
+const App=() => (
+  <Router>
+    <div
+      className='ui text container'
+    >
+      <h2 className='ui dividing header'>
+        Which body of water?
+      </h2>
+
+      <ul>
+        <li>
+          <Link to='/atlantic'>
+            <code>/atlantic</code>
+          </Link>
+        </li>
+        <li>
+          <Link to='/pacific'>
+            <code>/pacific</code>
+          </Link>
+        </li>
+      </ul>
+
+      <hr />
+      <Match pattern='/atlantic' component={Atlantic} />
+      <Match pattern='/pacific' component={Pacific} />
+      {/* We'll insert the Match components here */}
+    </div>
+  </Router>
+);
+
+
+
+const Atlantic=() => (
   <div>
     <h3>Atlantic Ocean</h3>
     <p>
@@ -66,7 +91,7 @@ const Atlantic = () => (
   </div>
 );
 
-const Pacific = () => (
+const Pacific=() => (
   <div>
     <h3>Pacific Ocean</h3>
     <p>
